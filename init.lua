@@ -861,12 +861,20 @@ require('lazy').setup({
           --
           -- <c-l> will move you to the right of each of the expansion locations.
           -- <c-h> is similar, except moving you backwards.
+<<<<<<< HEAD
           ['<M-l>'] = cmp.mapping(function()
+=======
+          ['<Tab>'] = cmp.mapping(function()
+>>>>>>> 1fef9dc81f7eb2abd7f1b305a3d5a0f6efc59a1e
             if luasnip.expand_or_locally_jumpable() then
               luasnip.expand_or_jump()
             end
           end, { 'i', 's' }),
+<<<<<<< HEAD
           ['<M-h>'] = cmp.mapping(function()
+=======
+          ['<S-Tab>'] = cmp.mapping(function()
+>>>>>>> 1fef9dc81f7eb2abd7f1b305a3d5a0f6efc59a1e
             if luasnip.locally_jumpable(-1) then
               luasnip.jump(-1)
             end

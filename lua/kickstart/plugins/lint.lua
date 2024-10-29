@@ -15,7 +15,11 @@ return {
         --   rst = { "vale" },
         --   ruby = { "ruby" },
         --   terraform = { "tflint" },
+<<<<<<< HEAD
           text = { "vale" }
+=======
+        --   text = { "vale" }
+>>>>>>> 1fef9dc81f7eb2abd7f1b305a3d5a0f6efc59a1e
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,
