@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -120,6 +120,9 @@ end)
 
 -- Enable break indent
 vim.opt.breakindent = true
+
+-- Word wrap
+vim.opt.linebreak = true
 
 -- Save undo history
 vim.opt.undofile = true
@@ -453,7 +456,7 @@ require('lazy').setup({
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
-      -- pcall(require('telescope').load_extension, 'project')
+      pcall(require('telescope').load_extension, 'project')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -467,7 +470,12 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.api.nvim_set_keymap('n', '<leader>p', ":lua require'telescope'.extensions.projects.projects()<CR>", { noremap = true, silent = true })
+      vim.api.nvim_set_keymap(
+        'n',
+        '<leader>p',
+        ":lua require'telescope'.extensions.projects.projects()<CR>",
+        { noremap = true, silent = true, desc = '[P]rojects' }
+      )
       vim.keymap.set('n', '<leader><leader>', '<cmd>Telescope buffers previewer=false<cr>', { desc = '[ ] Find existing buffers' })
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -709,13 +717,13 @@ require('lazy').setup({
         'goimports',
         'goimports-reviser',
         'gopls',
-        'grammarly',
+        'ltex',
         'lua_ls',
         'marksman',
         'netcoredbg',
         'stylua',
         'templ',
-        'vale_ls',
+        'zk',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -930,7 +938,7 @@ require('lazy').setup({
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
+      -- require('mini.surround').setup()
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
@@ -947,6 +955,11 @@ require('lazy').setup({
         return '%2l:%-2v'
       end
 
+      require('mini.pick').setup {
+        mappings = {},
+      }
+
+      require('mini.align').setup()
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,

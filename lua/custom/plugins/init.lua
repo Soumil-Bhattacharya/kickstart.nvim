@@ -45,7 +45,7 @@ return {
       require('zk').setup {
         -- can be "telescope", "fzf", "fzf_lua", "minipick", or "select" (`vim.ui.select`)
         -- it's recommended to use "telescope", "fzf", "fzf_lua", or "minipick"
-        picker = 'telescope',
+        picker = 'minipick',
 
         lsp = {
           -- `config` is passed to `vim.lsp.start_client(config)`
@@ -101,12 +101,86 @@ return {
       })
     end,
   },
+
   {
     'iamcco/markdown-preview.nvim',
     cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+    build = 'cd app && yarn install',
+    init = function()
+      vim.g.mkdp_filetypes = { 'markdown' }
+    end,
     ft = { 'markdown' },
-    build = function()
-      vim.fn['mkdp#util#install']()
+  },
+
+  -- { 'ellisonleao/glow.nvim', config = true, cmd = 'Glow' },
+
+  {
+    'folke/zen-mode.nvim',
+    opts = {
+      window = {
+        backdrop = 0.95, -- shade the backdrop of the Zen window. Set to 1 to keep the same as Normal
+        -- height and width can be:
+        -- * an absolute number of cells when > 1
+        -- * a percentage of the width / height of the editor when <= 1
+        -- * a function that returns the width or the height
+        width = 120, -- width of the Zen window
+        height = 1, -- height of the Zen window
+        -- by default, no options are changed for the Zen window
+        -- uncomment any of the options below, or add other vim.wo options you want to apply
+        options = {
+          -- signcolumn = "no", -- disable signcolumn
+          -- number = false, -- disable number column
+          -- relativenumber = false, -- disable relative numbers
+          -- cursorline = false, -- disable cursorline
+          -- cursorcolumn = false, -- disable cursor column
+          -- foldcolumn = "0", -- disable fold column
+          -- list = false, -- disable whitespace characters
+        },
+      },
+    },
+  },
+
+  {
+    'klen/nvim-config-local',
+    config = function()
+      require('config-local').setup {
+        -- Default options (optional)
+
+        -- Config file patterns to load (lua supported)
+        config_files = { '.nvim.lua', '.nvimrc', '.exrc' },
+
+        -- Where the plugin keeps files data
+        hashfile = vim.fn.stdpath 'data' .. '/config-local',
+
+        autocommands_create = true, -- Create autocommands (VimEnter, DirectoryChanged)
+        commands_create = true, -- Create commands (ConfigLocalSource, ConfigLocalEdit, ConfigLocalTrust, ConfigLocalIgnore)
+        silent = false, -- Disable plugin messages (Config loaded/ignored)
+        lookup_parents = true, -- Lookup config files in parent directories
+      }
+    end,
+  },
+
+  {
+    'instant-markdown/vim-instant-markdown',
+    filetypes = 'markdown',
+    build = 'yarn install',
+    config = function()
+      vim.cmd [[
+        filetype plugin on
+        "Uncomment to override defaults:
+        let g:instant_markdown_slow = 0
+        let g:instant_markdown_autostart = 0
+        let g:instant_markdown_open_to_the_world = 0
+        let g:instant_markdown_allow_unsafe_content = 0
+        let g:instant_markdown_allow_external_content = 0
+        let g:instant_markdown_mathjax = 1
+        let g:instant_markdown_mermaid = 1
+        let g:instant_markdown_logfile = '~\AppData\Local\Temp\instant_markdown.log'
+        "let g:instant_markdown_autoscroll = 0
+        let g:instant_markdown_port = 8080
+        let g:instant_markdown_python = 0
+        let g:instant_markdown_theme = 'dark'
+      ]]
     end,
   },
 }
