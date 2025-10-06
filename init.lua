@@ -1,89 +1,3 @@
---[[
-
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-========                                    .-----.          ========
-========         .----------------------.   | === |          ========
-========         |.-""""""""""""""""""-.|   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||   KICKSTART.NVIM   ||   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||                    ||   |-----|          ========
-========         ||:Tutor              ||   |:::::|          ========
-========         |'-..................-'|   |____o|          ========
-========         `"")----------------(""`   ___________      ========
-========        /::::::::::|  |::::::::::\  \ no mouse \     ========
-========       /:::========|  |==hjkl==:::\  \ required \    ========
-========      '""""""""""""'  '""""""""""""'  '""""""""""'   ========
-========                                                     ========
-=====================================================================
-=====================================================================
-
-What is Kickstart?
-
-  Kickstart.nvim is *not* a distribution.
-
-  Kickstart.nvim is a starting point for your own configuration.
-    The goal is that you can read every line of code, top-to-bottom, understand
-    what your configuration is doing, and modify it to suit your needs.
-
-    Once you've done that, you can start exploring, configuring and tinkering to
-    make Neovim your own! That might mean leaving Kickstart just the way it is for a while
-    or immediately breaking it into modular pieces. It's up to you!
-
-    If you don't know anything about Lua, I recommend taking some time to read through
-    a guide. One possible example which will only take 10-15 minutes:
-      - https://learnxinyminutes.com/docs/lua/
-
-    After understanding a bit more about Lua, you can use `:help lua-guide` as a
-    reference for how Neovim integrates Lua.
-    - :help lua-guide
-    - (or HTML version): https://neovim.io/doc/user/lua-guide.html
-
-Kickstart Guide:
-
-  TODO: The very first thing you should do is to run the command `:Tutor` in Neovim.
-
-    If you don't know what this means, type the following:
-      - <escape key>
-      - :
-      - Tutor
-      - <enter key>
-
-    (If you already know the Neovim basics, you can skip this step.)
-
-  Once you've completed that, you can continue working through **AND READING** the rest
-  of the kickstart init.lua.
-
-  Next, run AND READ `:help`.
-    This will open up a help window with some basic information
-    about reading, navigating and searching the builtin help documentation.
-
-    This should be the first place you go to look when you're stuck or confused
-    with something. It's one of my favorite Neovim features.
-
-    MOST IMPORTANTLY, we provide a keymap "<space>sh" to [s]earch the [h]elp documentation,
-    which is very useful when you're not exactly sure of what you're looking for.
-
-  I have left several `:help X` comments throughout the init.lua
-    These are hints about where to find more information about the relevant settings,
-    plugins or Neovim features used in Kickstart.
-
-   NOTE: Look for lines like this
-
-    Throughout the file. These are for you, the reader, to help you understand what is happening.
-    Feel free to delete them once you know what you're doing, but they should serve as a guide
-    for when you are first encountering a few different constructs in your Neovim config.
-
-If you experience any errors while trying to install kickstart, run `:checkhealth` for more info.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now! :)
---]]
-
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -123,6 +37,9 @@ vim.opt.breakindent = true
 
 -- Word wrap
 vim.opt.linebreak = true
+
+-- Disable swap file
+-- vim.opt.swap = false
 
 -- Save undo history
 vim.opt.undofile = true
@@ -177,6 +94,11 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('i', 'jk', '<Esc>')
 vim.keymap.set('i', 'kj', '<Esc>')
 
+-- Replacing neotree with native Netrw
+
+vim.keymap.set('n', '<leader>e', '<cmd>Lexplore 20<CR>', { desc = 'Netrw Toggle' })
+vim.keymap.set('n', '<leader>E', '<cmd>Lexplore 20 %:h<CR>', { desc = 'Netrw Reveal' })
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
@@ -206,6 +128,15 @@ vim.keymap.set('n', '<M-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<M-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<M-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<M-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- [[Filetype Mappings]]
+-- Create new filetype mappings for some linters
+vim.filetype.add {
+  pattern = {
+    ['openapi.*%.ya?ml'] = 'yaml.openapi',
+    ['openapi.*%.json'] = 'json.openapi',
+  },
+}
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -521,7 +452,17 @@ require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
-      { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
+      {
+        'williamboman/mason.nvim',
+        config = function()
+          require('mason').setup {
+            registries = {
+              'github:mason-org/mason-registry',
+              'github:Crashdummyy/mason-registry',
+            },
+          }
+        end,
+      }, -- NOTE: Must be loaded before dependants
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
@@ -531,6 +472,9 @@ require('lazy').setup({
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
+
+      -- -- Goto-definition for omnisharp
+      -- 'Hoffs/omnisharp-extended-lsp.nvim',
     },
     config = function()
       -- Brief aside: **What is LSP?**
@@ -682,7 +626,100 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
         --
+        -- csharpier = {
+        --   cmd = {},
+        -- },
+        -- omnisharp = {
+        --   handlers = {
+        --     ['textDocument/definition'] = require('omnisharp_extended').definition_handler,
+        --     ['textDocument/typeDefinition'] = require('omnisharp_extended').type_definition_handler,
+        --     ['textDocument/references'] = require('omnisharp_extended').references_handler,
+        --     ['textDocument/implementation'] = require('omnisharp_extended').implementation_handler,
+        --   },
+        --
+        --   enable_msbuild_load_projects_on_demand = true,
+        --   enable_roslyn_analyzers = true,
+        --   organize_imports_on_format = true,
+        --   -- settings = {
+        --   --   FormattingOptions = {
+        --   --     -- Enables support for reading code style, naming convention and analyzer
+        --   --     -- settings from .editorconfig.
+        --   --     EnableEditorConfigSupport = true,
+        --   --     -- Specifies whether 'using' directives should be grouped and sorted during
+        --   --     -- document formatting.
+        --   --     OrganizeImports = true,
+        --   --   },
+        --   --   MsBuild = {
+        --   --     -- If true, MSBuild project system will only load projects for files that
+        --   --     -- were opened in the editor. This setting is useful for big C# codebases
+        --   --     -- and allows for faster initialization of code navigation features only
+        --   --     -- for projects that are relevant to code that is being edited. With this
+        --   --     -- setting enabled OmniSharp may load fewer projects and may thus display
+        --   --     -- incomplete reference lists for symbols.
+        --   --     LoadProjectsOnDemand = true,
+        --   --   },
+        --   --   RoslynExtensionsOptions = {
+        --   --     -- Enables support for roslyn analyzers, code fixes and rulesets.
+        --   --     EnableAnalyzersSupport = true,
+        --   --     -- Enables support for showing unimported types and unimported extension
+        --   --     -- methods in completion lists. When committed, the appropriate using
+        --   --     -- directive will be added at the top of the current file. This option can
+        --   --     -- have a negative impact on initial completion responsiveness,
+        --   --     -- particularly for the first few completion sessions after opening a
+        --   --     -- solution.
+        --   --     EnableImportCompletion = true,
+        --   --     -- Only run analyzers against open files when 'enableRoslynAnalyzers' is
+        --   --     -- true
+        --   --     AnalyzeOpenDocumentsOnly = false,
+        --   --     EnableDecompilationSupport = true,
+        --   --   },
+        --   --   Sdk = {
+        --   --     -- Specifies whether to include preview versions of the .NET SDK when
+        --   --     -- determining which version to use for project loading.
+        --   --     IncludePrereleases = true,
+        --   --   },
+        --   -- },
+        -- },
+        powershell_es = {
+          shell = 'powershell.exe',
+        },
 
+        jsonls = {
+          handlers = {
+            ['textDocument/publishDiagnostics'] = function(err, result, ctx, config)
+              -- jsonls doesn't really support json5
+              -- remove some annoying errors
+              if string.match(result.uri, '%.json5$', -6) and result.diagnostics ~= nil then
+                local idx = 1
+                while idx <= #result.diagnostics do
+                  -- "Comments are not permitted in JSON."
+                  if result.diagnostics[idx].code == 521 then
+                    table.remove(result.diagnostics, idx)
+                  else
+                    idx = idx + 1
+                  end
+                end
+              end
+              opd(err, result, ctx, config)
+            end,
+          },
+        },
+
+        roslyn = {
+          settings = {
+            ['csharp|inlay_hints'] = {
+              csharp_enable_inlay_hints_for_implicit_object_creation = true,
+              csharp_enable_inlay_hints_for_implicit_variable_types = true,
+            },
+            ['csharp|code_lens'] = {
+              dotnet_enable_references_code_lens = true,
+            },
+          },
+        },
+
+        ltex = {
+          language = 'en-GB',
+        },
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
@@ -712,8 +749,8 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         -- 'csharp_ls',
-        'csharpier',
-        'omnisharp',
+        -- 'csharpier',
+        -- 'omnisharp',
         'goimports',
         'goimports-reviser',
         'gopls',
@@ -958,7 +995,7 @@ require('lazy').setup({
       require('mini.pick').setup {
         mappings = {},
       }
-
+      require('mini.extra').setup()
       require('mini.align').setup()
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
@@ -1005,6 +1042,7 @@ require('lazy').setup({
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'lsp.roslyn',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
